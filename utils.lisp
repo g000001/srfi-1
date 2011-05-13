@@ -32,10 +32,20 @@
 (defmacro begin (&body body)
   `(progn ,@body))
 
+;; from sbcl
+(defmacro named-let (name binds &body body)
+  (dolist (x binds)
+    (unless (= 2(length x))
+      (error "malformed NAMED-LET variable spec: ~S" x)))
+  `(labels ((,name ,(mapcar #'first binds) ,@body))
+     (,name ,@(mapcar #'second binds))))
+
 (defmacro let (&rest args)
   (etypecase (car args)
     (list `(cl:let ,@args))
-    (symbol `(sb-int:named-let ,@args))))
+    (symbol `(#+sbcl sb-int:named-let
+              #-sbcl named-let
+                     ,@args))))
 
 (defmacro receive ((&rest args) vals &body body)
   `(multiple-value-bind (,@args) ,vals
