@@ -3,10 +3,7 @@
 (cl:in-package :cl-user)
 
 (defpackage :srfi-1
-  (:shadow
-   :make-list :first :second :third :fourth :fifth :sixth :seventh :eighth
-   :ninth :tenth :last :concatenate :reduce :remove :find :every :break :delete
-   :count :delete-duplicates)
+  (:use)
   (:export
    :xcons :tree-copy :make-list :list-tabulate :cons* :list-copy :proper-list?
    :circular-list? :dotted-list? :not-pair? :null-list? :list=
