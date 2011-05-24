@@ -231,8 +231,7 @@
 ;	(cons (recur (car x)) (recur (cdr x))))))
 
 ;;; Make a list of length LEN.
-
-(define (make-list len &rest maybe-elt)
+(define (srfi-1:make-list len &rest maybe-elt)
   (declare ((integer 0 *) len))
   (let ((elt (cond ((null? maybe-elt) nil) ; Default value
 		   ((null? (cdr maybe-elt)) (car maybe-elt))

@@ -37,8 +37,8 @@
   (dolist (x binds)
     (unless (= 2(length x))
       (error "malformed NAMED-LET variable spec: ~S" x)))
-  `(labels ((,name ,(mapcar #'first binds) ,@body))
-     (,name ,@(mapcar #'second binds))))
+  `(labels ((,name ,(mapcar #'cl:first binds) ,@body))
+     (,name ,@(mapcar #'cl:second binds))))
 
 (defmacro let (&rest args)
   (etypecase (car args)
