@@ -232,26 +232,22 @@
 
 ;;; Make a list of length LEN.
 (define (srfi-1:make-list len &rest maybe-elt)
-  (declare ((integer 0 *) len))
   (let ((elt (cond ((null? maybe-elt) nil) ; Default value
 		   ((null? (cdr maybe-elt)) (car maybe-elt))
 		   (:else (error "Too many arguments to MAKE-LIST ~S"
                                  (cons len maybe-elt))))))
     (do ((i len (- i 1))
 	 (ans '() (cons elt ans)))
-	((<= i 0) ans))))
-
+	((<= i 0) ans)
+      (declare (fixnum i)))))
 
 ;(define (list . ans) ans)	; R4RS
 
 
 ;;; Make a list of length LEN. Elt i is (PROC i) for 0 <= i < LEN.
-
-
 (define (list-tabulate len proc)
-  (declare ((integer 0 *) len)
-           (function proc))
-  (do ((i (- len 1) (- i 1))
+  (declare (function proc))
+  (do ((i (f- len 1) (f- i 1))
        (ans '() (cons (funcall proc i) ans)))
       ((< i 0) ans)))
 
@@ -277,13 +273,13 @@
 ;;; IOTA count [start step]	(start start+step ... start+(count-1)*step)
 
 (define (iota count &optional (start 0) (step 1))
-  (declare (integer count)
+  (declare (fixnum count)
            (number start step))
   (if (< count 0) (error "Negative step count ~S ~S" 'iota count))
   (let loop ((n 0) (r '()))
     (if (= n count)
         (reverse r)
-        (loop (+ 1 n)
+        (loop (f+ 1 n)
               (cons (+ start (* n step)) r)))))
 
 ;;; I thought these were lovely, but the public at large did not share my
@@ -395,6 +391,7 @@
 	(:else (error "null-list?: argument out of domain ~S" l))))
 
 (define (list= = &rest lists)
+  (declare (function =))
   (or (null? lists) ; special case
 
       (let lp1 ((list-a (car lists)) (others (cdr lists)))
@@ -424,11 +421,11 @@
   (let lp ((x x) (lag x) (len 0))
     (if (pair? x)
 	(let ((x (cdr x))
-	      (len (+ len 1)))
+	      (len (f+ len 1)))
 	  (if (pair? x)
 	      (let ((x   (cdr x))
 		    (lag (cdr lag))
-		    (len (+ len 1)))
+		    (len (f+ len 1)))
 		(and (not (eq? x lag)) (lp x lag len)))
 	      len))
 	len)))
@@ -492,17 +489,17 @@
   (let recur ((lis lis) (k k))
     (if (zero? k) '()
 	(cons (car lis)
-	      (recur (cdr lis) (- k 1))))))
+	      (recur (cdr lis) (f- k 1))))))
 
 (define (drop lis k)
   (declare (integer k))
   (let iter ((lis lis) (k k))
-    (if (zero? k) lis (iter (cdr lis) (- k 1)))))
+    (if (zero? k) lis (iter (cdr lis) (f- k 1)))))
 
 (define (take! lis k)
   (declare (integer k))
   (if (zero? k) '()
-      (begin (set-cdr! (drop lis (- k 1)) '())
+      (begin (set-cdr! (drop lis (f- k 1)) '())
 	     lis)))
 
 ;;; TAKE-RIGHT and DROP-RIGHT work by getting two pointers into the list,
@@ -586,13 +583,13 @@
   (declare (integer k))
   (let recur ((lis x) (k k))
     (if (zero? k) (values '() lis)
-	(receive (prefix suffix) (recur (cdr lis) (- k 1))
+	(receive (prefix suffix) (recur (cdr lis) (f- k 1))
 	  (values (cons (car lis) prefix) suffix)))))
 
 (define (split-at! x k)
   (declare (integer k))
   (if (zero? k) (values '() x)
-      (let* ((prev (drop x (- k 1)))
+      (let* ((prev (drop x (f- k 1)))
 	     (suffix (cdr prev)))
 	(set-cdr! prev '())
 	(values x suffix))))
@@ -793,12 +790,12 @@
 	    (receive (as ds) (%cars+cdrs lists)
 	      (if (null? as) i
 		  (lp (cdr list1) ds
-		      (if (apply pred (car list1) as) (+ i 1) i))))))
+		      (if (apply pred (car list1) as) (f+ i 1) i))))))
 
       ;; Fast path
       (let lp ((lis list1) (i 0))
 	(if (null-list? lis) i
-	    (lp (cdr lis) (if (funcall pred (car lis)) (+ i 1) i))))))
+	    (lp (cdr lis) (if (funcall pred (car lis)) (f+ i 1) i))))))
 
 
 ;;; fold/unfold
@@ -899,7 +896,7 @@
   (really-append-map #'append-map! #'append! f lis1 lists))
 
 (define (really-append-map who appender f lis1 lists)
-  (declare (function f)
+  (declare (function f appender)
            (ignore who))
   (if (pair? lists)
       (receive (cars cdrs) (%cars+cdrs (cons lis1 lists))
@@ -1175,8 +1172,12 @@
 
 ;;; Inline us, please.
 (declaim (inline remove remove!))
-(define (remove  pred l) (filter  (lambda (x) (not (funcall pred x))) l))
-(define (remove! pred l) (filter! (lambda (x) (not (funcall pred x))) l))
+(define (remove  pred l)
+  (declare (function pred))
+  (filter  (lambda (x) (not (funcall pred x))) l))
+(define (remove! pred l)
+  (declare (function pred))
+  (filter! (lambda (x) (not (funcall pred x))) l))
 
 
 ;;; Here's the taxonomy for the DELETE/ASSOC/MEMBER functions.
@@ -1197,13 +1198,16 @@
 ;;; alist-delete key alist [=]	Alist-delete by key comparison
 
 (define (delete x lis &optional (= #'equal?))
+  (declare (function =))
   (filter (lambda (y) (not (funcall = x y))) lis))
 
 (define (delete! x lis &optional (= #'equal?))
+  (declare (function =))
   (filter! (lambda (y) (not (funcall = x y))) lis))
 
 ;;; Extended from R4RS to take an optional comparison argument.
 (define (member x lis &optional (= #'equal?))
+  (declare (function =))
   (find-tail (lambda (y) (funcall = x y)) lis))
 
 ;;; R4RS, hence we don't bother to define.
@@ -1246,6 +1250,7 @@
 
 ;;; Extended from R4RS to take an optional comparison argument.
 (define (assoc x lis &optional (= #'equal?))
+  (declare (function =))
   (find (lambda (entry) (funcall = x (car entry))) lis))
 
 (define (alist-cons key datum alist) (cons (cons key datum) alist))
@@ -1255,9 +1260,11 @@
        alist))
 
 (define (alist-delete key alist &optional (elt= #'equal?))
+  (declare (function elt=))
   (filter (lambda (elt) (not (funcall elt= key (car elt)))) alist))
 
 (define (alist-delete! key alist &optional (elt= #'equal?))
+  (declare (function elt=))
   (filter! (lambda (elt) (not (funcall elt= key (car elt)))) alist))
 
 
@@ -1325,8 +1332,12 @@
 	(values lis suffix))))
 
 
-(define (break  pred lis) (span  (lambda (x) (not (funcall pred x))) lis))
-(define (break! pred lis) (span! (lambda (x) (not (funcall pred x))) lis))
+(define (break  pred lis)
+  (declare (function pred))
+  (span  (lambda (x) (not (funcall pred x))) lis))
+(define (break! pred lis)
+  (declare (function pred))
+  (span! (lambda (x) (not (funcall pred x))) lis))
 
 (define (any pred lis1 &rest lists)
   (declare (function pred))
@@ -1384,12 +1395,12 @@
 	(receive (heads tails) (%cars+cdrs lists)
 	  (and (pair? heads)
 	       (if (apply pred heads) n
-		   (lp tails (+ n 1))))))
+		   (lp tails (f+ n 1))))))
 
       ;; Fast path
       (let lp ((lis lis1) (n 0))
 	(and (not (null-list? lis))
-	     (if (funcall pred (car lis)) n (lp (cdr lis) (+ n 1)))))))
+	     (if (funcall pred (car lis)) n (lp (cdr lis) (f+ n 1)))))))
 
 ;;; Reverse
 ;;;;;;;;;;;
