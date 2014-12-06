@@ -2,9 +2,9 @@
 
 (cl:in-package :srfi-1-internal)
 
-(def-suite srfi-1)
+(5am:def-suite srfi-1)
 
-(in-suite srfi-1)
+(5am:in-suite srfi-1)
 
 ;;; SRFI-1 list-processing library
 ;;; Reference implementation
@@ -222,7 +222,7 @@
 ;;; Occasionally useful as a value to be passed to a fold or other
 ;;; higher-order procedure.
 
-(define (xcons d a) (cons a d))
+(define (srfi-1:xcons d a) (cons a d))
 
 ;;;; Recursively copy every cons.
 ;(define (tree-copy x)
@@ -245,7 +245,7 @@
 
 
 ;;; Make a list of length LEN. Elt i is (PROC i) for 0 <= i < LEN.
-(define (list-tabulate len proc)
+(define (srfi-1:list-tabulate len proc)
   (declare (function proc))
   (do ((i (f- len 1) (f- i 1))
        (ans '() (cons (funcall proc i) ans)))
@@ -256,7 +256,7 @@
 ;;;
 ;;; (cons first (unfold not-pair? car cdr rest values))
 
-(define (cons* first &rest rest)
+(define (srfi-1:cons* first &rest rest)
   (let recur ((x first) (rest rest))
     (if (pair? rest)
         (cons x (recur (car rest) (cdr rest)))
@@ -264,7 +264,7 @@
 
 ;;; (unfold not-pair? car cdr lis values)
 
-(define (list-copy lis)
+(define (srfi-1:list-copy lis)
   (let recur ((lis lis))
     (if (pair? lis)
 	(cons (car lis) (recur (cdr lis)))
@@ -272,7 +272,7 @@
 
 ;;; IOTA count [start step]	(start start+step ... start+(count-1)*step)
 
-(define (iota count &optional (start 0) (step 1))
+(define (srfi-1:iota count &optional (start 0) (step 1))
   (declare (fixnum count)
            (number start step))
   (if (< count 0) (error "Negative step count ~S ~S" 'iota count))
@@ -327,9 +327,9 @@
 ;	   (ans '() (cons val ans)))
 ;	  ((<= steps-left 0) ans)))))
 
-(define (circular-list val1 &rest vals)
+(define (srfi-1:circular-list val1 &rest vals)
   (let ((ans (cons val1 vals)))
-    (set-cdr! (last-pair ans) ans)
+    (set-cdr! (srfi-1:last-pair ans) ans)
     ans))
 
 ;;; <proper-list> ::= ()			; Empty proper list
@@ -338,7 +338,7 @@
 ;;; function is required to detect this case and return false.
 
 
-(define (proper-list? x)
+(define (srfi-1:proper-list? x)
   (let lp ((x x) (lag x))
     (if (pair? x)
 	(let ((x (cdr x)))
@@ -357,7 +357,7 @@
 ;;; <dotted-list> ::= <non-nil,non-pair>	; Empty dotted list
 ;;;               |   (cons <x> <dotted-list>)	; Proper-list pair
 
-(define (dotted-list? x)
+(define (srfi-1:dotted-list? x)
   (let lp ((x x) (lag x))
     (if (pair? x)
 	(let ((x (cdr x)))
@@ -369,7 +369,7 @@
 	(not (null? x)))))
 
 
-(define (circular-list? x)
+(define (srfi-1:circular-list? x)
   (let lp ((x x) (lag x))
     (and (pair? x)
 	 (let ((x (cdr x)))
@@ -378,19 +378,19 @@
 		      (lag (cdr lag)))
 		  (or (eq? x lag) (lp x lag))))))))
 
-(declaim (inline not-pair?))
-(define (not-pair? x) (not (pair? x)))	; Inline me.
+(declaim (inline srfi-1:not-pair?))
+(define (srfi-1:not-pair? x) (not (pair? x)))	; Inline me.
 
 ;;; This is a legal definition which is fast and sloppy:
 ;;;     (define null-list? not-pair?)
 ;;; but we'll provide a more careful one:
 
-(define (null-list? l)
+(define (srfi-1:null-list? l)
   (cond ((pair? l) nil)
 	((null? l) t)
 	(:else (error "null-list?: argument out of domain ~S" l))))
 
-(define (list= = &rest lists)
+(define (srfi-1:list= = &rest lists)
   (declare (function =))
   (or (null? lists) ; special case
 
@@ -401,10 +401,10 @@
 	      (if (eq? list-a list-b)	; EQ? => LIST=
 		  (lp1 list-b others)
 		  (let lp2 ((list-a list-a) (list-b list-b))
-		    (if (null-list? list-a)
-			(and (null-list? list-b)
+		    (if (srfi-1:null-list? list-a)
+			(and (srfi-1:null-list? list-b)
 			     (lp1 list-b others))
-			(and (not (null-list? list-b))
+			(and (not (srfi-1:null-list? list-b))
 			     (funcall = (car list-a) (car list-b))
 			     (lp2 (cdr list-a) (cdr list-b)))))))))))
 
@@ -417,7 +417,7 @@
 ;        (lp (cdr x) (+ len 1))		; diverges.
 ;        len)))
 
-(define (length+ x)			; Returns #f if X is circular.
+(define (srfi-1:length+ x)			; Returns #f if X is circular.
   (let lp ((x x) (lag x) (len 0))
     (if (pair? x)
 	(let ((x (cdr x))
@@ -430,7 +430,7 @@
 	      len))
 	len)))
 
-(define (zip list1 &rest more-lists) (apply #'map #'list list1 more-lists))
+(define (srfi-1:zip list1 &rest more-lists) (apply #'map #'list list1 more-lists))
 
 ;;; Selectors
 ;;;;;;;;;;;;;
@@ -467,64 +467,64 @@
 ;(define (cdddar x) (cdddr (car x)))
 ;(define (cddddr x) (cdddr (cdr x)))
 
-(declaim (inline first second third fourth fifth sixth seventh
-                 eighth ninth tenth))
-(define first  #'car)
-(define second #'cadr)
-(define third  #'caddr)
-(define fourth #'cadddr)
-(define (fifth   x) (car    (cddddr x)))
-(define (sixth   x) (cadr   (cddddr x)))
-(define (seventh x) (caddr  (cddddr x)))
-(define (eighth  x) (cadddr (cddddr x)))
-(define (ninth   x) (car  (cddddr (cddddr x))))
-(define (tenth   x) (cadr (cddddr (cddddr x))))
+(declaim (inline srfi-1:first srfi-1:second srfi-1:third srfi-1:fourth srfi-1:fifth
+                 srfi-1:sixth srfi-1:seventh srfi-1:eighth srfi-1:ninth srfi-1:tenth))
+(define srfi-1:first  #'car)
+(define srfi-1:second #'cadr)
+(define srfi-1:third  #'caddr)
+(define srfi-1:fourth #'cadddr)
+(define (srfi-1:fifth   x) (car    (cddddr x)))
+(define (srfi-1:sixth   x) (cadr   (cddddr x)))
+(define (srfi-1:seventh x) (caddr  (cddddr x)))
+(define (srfi-1:eighth  x) (cadddr (cddddr x)))
+(define (srfi-1:ninth   x) (car  (cddddr (cddddr x))))
+(define (srfi-1:tenth   x) (cadr (cddddr (cddddr x))))
 
-(define (car+cdr pair) (values (car pair) (cdr pair)))
+(define (srfi-1:car+cdr pair) (values (car pair) (cdr pair)))
 
 ;;; take & drop
 
-(define (take lis k)
+(define (srfi-1:take lis k)
   (declare (integer k))
   (let recur ((lis lis) (k k))
     (if (zero? k) '()
 	(cons (car lis)
 	      (recur (cdr lis) (f- k 1))))))
 
-(define (drop lis k)
+(define (srfi-1:drop lis k)
   (declare (integer k))
   (let iter ((lis lis) (k k))
     (if (zero? k) lis (iter (cdr lis) (f- k 1)))))
 
-(define (take! lis k)
+(define (srfi-1:take! lis k)
   (declare (integer k))
   (if (zero? k) '()
-      (begin (set-cdr! (drop lis (f- k 1)) '())
+      (begin (set-cdr! (srfi-1:drop lis (f- k 1)) '())
 	     lis)))
 
 ;;; TAKE-RIGHT and DROP-RIGHT work by getting two pointers into the list,
 ;;; off by K, then chasing down the list until the lead pointer falls off
 ;;; the end.
 
-(define (take-right lis k)
+(define (srfi-1:take-right lis k)
   (declare (integer k))
-  (let lp ((lag lis)  (lead (drop lis k)))
+  (let lp ((lag lis)  (lead (srfi-1:drop lis k)))
     (if (pair? lead)
 	(lp (cdr lag) (cdr lead))
 	lag)))
 
-(define (drop-right lis k)
+(define (srfi-1:drop-right lis k)
   (declare (integer k))
-  (let recur ((lag lis) (lead (drop lis k)))
+  (let recur ((lag lis) (lead (srfi-1:drop lis k)))
     (if (pair? lead)
 	(cons (car lag) (recur (cdr lag) (cdr lead)))
 	'())))
 
 ;;; In this function, LEAD is actually K+1 ahead of LAG. This lets
 ;;; us stop LAG one step early, in time to smash its cdr to ().
-(define (drop-right! lis k)
+(define (srfi-1:drop-right! lis k)
   (declare (integer k))
-  (let ((lead (drop lis k)))
+  (let ((lead (srfi-1:drop lis k)))
     (if (pair? lead)
 
 	(let lp ((lag lis)  (lead (cdr lead)))	; Standard case
@@ -579,24 +579,24 @@
 ;		   lis)))
 ;      (list-tail lis k)))
 
-(define (split-at x k)
+(define (srfi-1:split-at x k)
   (declare (integer k))
   (let recur ((lis x) (k k))
     (if (zero? k) (values '() lis)
 	(receive (prefix suffix) (recur (cdr lis) (f- k 1))
 	  (values (cons (car lis) prefix) suffix)))))
 
-(define (split-at! x k)
+(define (srfi-1:split-at! x k)
   (declare (integer k))
   (if (zero? k) (values '() x)
-      (let* ((prev (drop x (f- k 1)))
+      (let* ((prev (srfi-1:drop x (f- k 1)))
 	     (suffix (cdr prev)))
 	(set-cdr! prev '())
 	(values x suffix))))
 
-(define (last lis) (car (last-pair lis)))
+(define (srfi-1:last lis) (car (srfi-1:last-pair lis)))
 
-(define (last-pair lis)
+(define (srfi-1:last-pair lis)
   (declare (cons lis))
   (let lp ((lis lis))
     (let ((tail (cdr lis)))
@@ -605,28 +605,28 @@
 ;;; Unzippers -- 1 through 5
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (unzip1 lis) (map #'car lis))
+(define (srfi-1:unzip1 lis) (map #'car lis))
 
-(define (unzip2 lis)
+(define (srfi-1:unzip2 lis)
   (let recur ((lis lis))
-    (if (null-list? lis) (values lis lis)	; Use NOT-PAIR? to handle
+    (if (srfi-1:null-list? lis) (values lis lis)	; Use NOT-PAIR? to handle
 	(let ((elt (car lis)))			; dotted lists.
 	  (receive (a b) (recur (cdr lis))
 	    (values (cons (car  elt) a)
 		    (cons (cadr elt) b)))))))
 
-(define (unzip3 lis)
+(define (srfi-1:unzip3 lis)
   (let recur ((lis lis))
-    (if (null-list? lis) (values lis lis lis)
+    (if (srfi-1:null-list? lis) (values lis lis lis)
 	(let ((elt (car lis)))
 	  (receive (a b c) (recur (cdr lis))
 	    (values (cons (car   elt) a)
 		    (cons (cadr  elt) b)
 		    (cons (caddr elt) c)))))))
 
-(define (unzip4 lis)
+(define (srfi-1:unzip4 lis)
   (let recur ((lis lis))
-    (if (null-list? lis) (values lis lis lis lis)
+    (if (srfi-1:null-list? lis) (values lis lis lis lis)
 	(let ((elt (car lis)))
 	  (receive (a b c d) (recur (cdr lis))
 	    (values (cons (car    elt) a)
@@ -634,9 +634,9 @@
 		    (cons (caddr  elt) c)
 		    (cons (cadddr elt) d)))))))
 
-(define (unzip5 lis)
+(define (srfi-1:unzip5 lis)
   (let recur ((lis lis))
-    (if (null-list? lis) (values lis lis lis lis lis)
+    (if (srfi-1:null-list? lis) (values lis lis lis lis lis)
 	(let ((elt (car lis)))
 	  (receive (a b c d e) (recur (cdr lis))
 	    (values (cons (car     elt) a)
@@ -649,7 +649,7 @@
 ;;; append! append-reverse append-reverse! concatenate concatenate!
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (append! &rest lists)
+(define (srfi-1:append! &rest lists)
   ;; First, scan through lists looking for a non-empty one.
   (let lp ((lists lists) (prev '()))
     (if (not (pair? lists)) prev
@@ -658,13 +658,13 @@
 	  (if (not (pair? first)) (lp rest first)
 
 	      ;; Now, do the splicing.
-	      (let lp2 ((tail-cons (last-pair first))
+	      (let lp2 ((tail-cons (srfi-1:last-pair first))
 			(rest rest))
 		(if (pair? rest)
 		    (let ((next (car rest))
 			  (rest (cdr rest)))
 		      (set-cdr! tail-cons next)
-		      (lp2 (if (pair? next) (last-pair next) tail-cons)
+		      (lp2 (if (pair? next) (srfi-1:last-pair next) tail-cons)
 			   rest))
 		    first)))))))
 
@@ -687,21 +687,21 @@
 
 ;;; Hand-inline the FOLD and PAIR-FOLD ops for speed.
 
-(define (append-reverse rev-head tail)
+(define (srfi-1:append-reverse rev-head tail)
   (let lp ((rev-head rev-head) (tail tail))
-    (if (null-list? rev-head) tail
+    (if (srfi-1:null-list? rev-head) tail
 	(lp (cdr rev-head) (cons (car rev-head) tail)))))
 
-(define (append-reverse! rev-head tail)
+(define (srfi-1:append-reverse! rev-head tail)
   (let lp ((rev-head rev-head) (tail tail))
-    (if (null-list? rev-head) tail
+    (if (srfi-1:null-list? rev-head) tail
 	(let ((next-rev (cdr rev-head)))
 	  (set-cdr! rev-head tail)
 	  (lp next-rev rev-head)))))
 
 
-(define (concatenate  lists) (reduce-right #'append  '() lists))
-(define (concatenate! lists) (reduce-right #'append! '() lists))
+(define (srfi-1:concatenate  lists) (srfi-1:reduce-right #'append  '() lists))
+(define (srfi-1:concatenate! lists) (srfi-1:reduce-right #'srfi-1:append! '() lists))
 
 ;;; Fold/map internal utilities
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -728,7 +728,7 @@
     (let recur ((lists lists))
       (if (pair? lists)
           (let ((lis (car lists)))
-            (if (null-list? lis) (return-from abort '())
+            (if (srfi-1:null-list? lis) (return-from abort '())
                 (cons (cdr lis) (recur (cdr lists)))))
           '()))))
 
@@ -744,10 +744,10 @@
   (block abort
     (let recur ((lists lists))
       (if (pair? lists)
-          (receive (list other-lists) (car+cdr lists)
-            (if (null-list? list) (return-from abort
+          (receive (list other-lists) (srfi-1:car+cdr lists)
+            (if (srfi-1:null-list? list) (return-from abort
                                     (values '() '())) ; LIST is empty -- bail out
-                (receive (a d) (car+cdr list)
+                (receive (a d) (srfi-1:car+cdr list)
                   (receive (cars cdrs) (recur other-lists)
                     (values (cons a cars) (cons d cdrs))))))
           (values '() '())))))
@@ -758,11 +758,11 @@
   (block abort
     (let recur ((lists lists))
          (if (pair? lists)
-             (receive (list other-lists) (car+cdr lists)
-               (if (null-list? list)
+             (receive (list other-lists) (srfi-1:car+cdr lists)
+               (if (srfi-1:null-list? list)
                    (return-from abort
                      (values '() '())) ; LIST is empty -- bail out
-                   (receive (a d) (car+cdr list)
+                   (receive (a d) (srfi-1:car+cdr list)
                      (receive (cars cdrs) (recur other-lists)
                        (values (cons a cars) (cons d cdrs))))))
              (values (list cars-final) '())))))
@@ -771,8 +771,8 @@
 (define (%cars+cdrs/no-test lists)
   (let recur ((lists lists))
     (if (pair? lists)
-	(receive (list other-lists) (car+cdr lists)
-	  (receive (a d) (car+cdr list)
+	(receive (list other-lists) (srfi-1:car+cdr lists)
+	  (receive (a d) (srfi-1:car+cdr list)
 	    (receive (cars cdrs) (recur other-lists)
 	      (values (cons a cars) (cons d cdrs)))))
 	(values '() '()))))
@@ -780,13 +780,13 @@
 
 ;;; count
 ;;;;;;;;;
-(define (count pred list1 &rest lists)
+(define (srfi-1:count pred list1 &rest lists)
   (declare (function pred))
   (if (pair? lists)
 
       ;; N-ary case
       (let lp ((list1 list1) (lists lists) (i 0))
-	(if (null-list? list1) i
+	(if (srfi-1:null-list? list1) i
 	    (receive (as ds) (%cars+cdrs lists)
 	      (if (null? as) i
 		  (lp (cdr list1) ds
@@ -794,14 +794,14 @@
 
       ;; Fast path
       (let lp ((lis list1) (i 0))
-	(if (null-list? lis) i
+	(if (srfi-1:null-list? lis) i
 	    (lp (cdr lis) (if (funcall pred (car lis)) (f+ i 1) i))))))
 
 
 ;;; fold/unfold
 ;;;;;;;;;;;;;;;
 
-(define (unfold-right p f g seed &optional (maybe-tail '() ))
+(define (srfi-1:unfold-right p f g seed &optional (maybe-tail '() ))
   (declare (function p f g))
   (let lp ((seed seed) (ans maybe-tail))
     (if (funcall p seed) ans
@@ -809,14 +809,14 @@
 	    (cons (funcall f seed) ans)))))
 
 
-(define (unfold p f g seed &optional (tail-gen (constantly () )))
+(define (srfi-1:unfold p f g seed &optional (tail-gen (constantly () )))
   (declare (function p f g tail-gen))
   (let recur ((seed seed))
     (if (funcall p seed) (funcall tail-gen seed)
         (cons (funcall f seed) (recur (funcall g seed))))))
 
 
-(define (fold kons knil lis1 &rest lists)
+(define (srfi-1:fold kons knil lis1 &rest lists)
   (declare (function kons))
   (if (pair? lists)
       (let lp ((lists (cons lis1 lists)) (ans knil))	; N-ary case
@@ -825,11 +825,11 @@
 	      (lp cdrs (apply kons cars+ans)))))
 
       (let lp ((lis lis1) (ans knil))			; Fast path
-	(if (null-list? lis) ans
+	(if (srfi-1:null-list? lis) ans
 	    (lp (cdr lis) (funcall kons (car lis) ans))))))
 
 
-(define (fold-right kons knil lis1 &rest lists)
+(define (srfi-1:fold-right kons knil lis1 &rest lists)
   (declare (function kons))
   (if (pair? lists)
       (let recur ((lists (cons lis1 lists)))		; N-ary case
@@ -838,32 +838,32 @@
 	      (apply kons (%cars+ lists (recur cdrs))))))
 
       (let recur ((lis lis1))				; Fast path
-	(if (null-list? lis) knil
+	(if (srfi-1:null-list? lis) knil
 	    (let ((head (car lis)))
 	      (funcall kons head (recur (cdr lis))))))))
 
 
-(define (pair-fold-right f zero lis1 &rest lists)
+(define (srfi-1:pair-fold-right f zero lis1 &rest lists)
   (declare (function f))
   (if (pair? lists)
       (let recur ((lists (cons lis1 lists)))		; N-ary case
 	(let ((cdrs (%cdrs lists)))
 	  (if (null? cdrs) zero
-	      (apply f (append! lists (list (recur cdrs)))))))
+	      (apply f (srfi-1:append! lists (list (recur cdrs)))))))
 
       (let recur ((lis lis1))				; Fast path
-	(if (null-list? lis) zero (funcall f lis (recur (cdr lis)))))))
+	(if (srfi-1:null-list? lis) zero (funcall f lis (recur (cdr lis)))))))
 
-(define (pair-fold f zero lis1 &rest lists)
+(define (srfi-1:pair-fold f zero lis1 &rest lists)
   (declare (function f))
   (if (pair? lists)
       (let lp ((lists (cons lis1 lists)) (ans zero))	; N-ary case
 	(let ((tails (%cdrs lists)))
 	  (if (null? tails) ans
-	      (lp tails (apply f (append! lists (list ans)))))))
+	      (lp tails (apply f (srfi-1:append! lists (list ans)))))))
 
       (let lp ((lis lis1) (ans zero))
-	(if (null-list? lis) ans
+	(if (srfi-1:null-list? lis) ans
 	    (let ((tail (cdr lis)))		; Grab the cdr now,
 	      (lp tail (funcall f lis ans)))))))	; in case F SET-CDR!s LIS.
 
@@ -871,14 +871,14 @@
 ;;; REDUCE and REDUCE-RIGHT only use RIDENTITY in the empty-list case.
 ;;; These cannot meaningfully be n-ary.
 
-(define (reduce f ridentity lis)
+(define (srfi-1:reduce f ridentity lis)
   (declare (function f))
-  (if (null-list? lis) ridentity
-      (fold f (car lis) (cdr lis))))
+  (if (srfi-1:null-list? lis) ridentity
+      (srfi-1:fold f (car lis) (cdr lis))))
 
-(define (reduce-right f ridentity lis)
+(define (srfi-1:reduce-right f ridentity lis)
   (declare (function f))
-  (if (null-list? lis) ridentity
+  (if (srfi-1:null-list? lis) ridentity
       (let recur ((head (car lis)) (lis (cdr lis)))
 	(if (pair? lis)
 	    (funcall f head (recur (car lis) (cdr lis)))
@@ -890,10 +890,10 @@
 ;;; Mappers: append-map append-map! pair-for-each map! filter-map map-in-order
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (append-map f lis1 &rest lists)
+(define (srfi-1:append-map f lis1 &rest lists)
   (really-append-map #'append-map  #'append  f lis1 lists))
-(define (append-map! f lis1 &rest lists)
-  (really-append-map #'append-map! #'append! f lis1 lists))
+(define (srfi-1:append-map! f lis1 &rest lists)
+  (really-append-map #'append-map! #'srfi-1:append! f lis1 lists))
 
 (define (really-append-map who appender f lis1 lists)
   (declare (function f appender)
@@ -908,14 +908,14 @@
 		      (funcall appender vals (recur cars2 cdrs2))))))))
 
       ;; Fast path
-      (if (null-list? lis1) '()
+      (if (srfi-1:null-list? lis1) '()
 	  (let recur ((elt (car lis1)) (rest (cdr lis1)))
 	    (let ((vals (funcall f elt)))
-	      (if (null-list? rest) vals
+	      (if (srfi-1:null-list? rest) vals
 		  (funcall appender vals (recur (car rest) (cdr rest)))))))))
 
 
-(define (pair-for-each proc lis1 &rest lists)
+(define (srfi-1:pair-for-each proc lis1 &rest lists)
   (declare (function proc))
   (if (pair? lists)
 
@@ -927,28 +927,28 @@
 
       ;; Fast path.
       (let lp ((lis lis1))
-	(if (not (null-list? lis))
+	(if (not (srfi-1:null-list? lis))
 	    (let ((tail (cdr lis)))	; Grab the cdr now,
 	      (funcall proc lis)        ; in case PROC SET-CDR!s LIS.
 	      (lp tail))))))
 
 ;;; We stop when LIS1 runs out, not when any list runs out.
-(define (map! f lis1 &rest lists)
+(define (srfi-1:map! f lis1 &rest lists)
   (declare (function f))
   (if (pair? lists)
       (let lp ((lis1 lis1) (lists lists))
-	(if (not (null-list? lis1))
+	(if (not (srfi-1:null-list? lis1))
 	    (receive (heads tails) (%cars+cdrs/no-test lists)
 	      (set-car! lis1 (apply f (car lis1) heads))
 	      (lp (cdr lis1) tails))))
 
       ;; Fast path.
-      (pair-for-each (lambda (pair) (set-car! pair (funcall f (car pair)))) lis1))
+      (srfi-1:pair-for-each (lambda (pair) (set-car! pair (funcall f (car pair)))) lis1))
   lis1)
 
 
 ;;; Map F across L, and save up all the non-false results.
-(define (filter-map f lis1 &rest lists)
+(define (srfi-1:filter-map f lis1 &rest lists)
   (declare (function f))
   (if (pair? lists)
       (let recur ((lists (cons lis1 lists)))
@@ -961,7 +961,7 @@
 
       ;; Fast path.
       (let recur ((lis lis1))
-	(if (null-list? lis) lis
+	(if (srfi-1:null-list? lis) lis
 	    (let ((tail (recur (cdr lis))))
 	      (let ((=> (funcall f (car lis))))
                 (cond (=> (cons => tail))
@@ -972,7 +972,7 @@
 ;;; NOTE: Some implementations of R5RS MAP are compliant with this spec;
 ;;; in which case this procedure may simply be defined as a synonym for MAP.
 
-(define (map-in-order f lis1 &rest lists)
+(define (srfi-1:map-in-order f lis1 &rest lists)
   (declare (function f))
   (if (pair? lists)
       (let recur ((lists (cons lis1 lists)))
@@ -984,7 +984,7 @@
 
       ;; Fast path.
       (let recur ((lis lis1))
-	(if (null-list? lis) lis
+	(if (srfi-1:null-list? lis) lis
 	    (let ((tail (cdr lis))
 		  (x (funcall f (car lis))))		; Do head first,
 	      (cons x (recur tail)))))))	; then tail.
@@ -1002,10 +1002,10 @@
 ;; This FILTER shares the longest tail of L that has no deleted elements.
 ;; If Scheme had multi-continuation calls, they could be made more efficient.
 
-(define (filter pred lis)			; Sleazing with EQ? makes this
+(define (srfi-1:filter pred lis)			; Sleazing with EQ? makes this
   (declare (function pred))
   (let recur ((lis lis))
-    (if (null-list? lis) lis			; Use NOT-PAIR? to handle dotted lists.
+    (if (srfi-1:null-list? lis) lis			; Use NOT-PAIR? to handle dotted lists.
 	(let ((head (car lis))
 	      (tail (cdr lis)))
 	  (if (funcall pred head)
@@ -1021,7 +1021,7 @@
 ;      ;; It also returns a flag NO-DEL? if the returned value
 ;      ;; is EQ? to L, i.e. if it didn't have to delete anything.
 ;      (let recur ((l l))
-;	(if (null-list? l) (values l #t)
+;	(if (srfi-1:null-list? l) (values l #t)
 ;	    (let ((x  (car l))
 ;		  (tl (cdr l)))
 ;	      (if (pred x)
@@ -1055,10 +1055,10 @@
 ;;; beginning of the next.
 
 
-(define (filter! pred lis)
+(define (srfi-1:filter! pred lis)
   (declare (function pred))
   (let lp ((ans lis))
-    (cond ((null-list? ans)       ans)			; Scan looking for
+    (cond ((srfi-1:null-list? ans)       ans)			; Scan looking for
           ((not (funcall pred (car ans))) (lp (cdr ans)))	; first cons of result.
 
           ;; ANS is the eventual answer.
@@ -1091,10 +1091,10 @@
 ;;; Answers share common tail with LIS where possible;
 ;;; the technique is slightly subtle.
 
-(define (partition pred lis)
+(define (srfi-1:partition pred lis)
   (declare (function pred))
   (let recur ((lis lis))
-    (if (null-list? lis) (values lis lis)	; Use NOT-PAIR? to handle dotted lists.
+    (if (srfi-1:null-list? lis) (values lis lis)	; Use NOT-PAIR? to handle dotted lists.
 	(let ((elt (car lis))
 	      (tail (cdr lis)))
 	  (receive (in out) (recur tail)
@@ -1106,7 +1106,7 @@
 
 ;(define (partition! pred lis)			; Things are much simpler
 ;  (let recur ((lis lis))			; if you are willing to
-;    (if (null-list? lis) (values lis lis)	; push N stack frames & do N
+;    (if (srfi-1:null-list? lis) (values lis lis)	; push N stack frames & do N
 ;        (let ((elt (car lis)))			; SET-CDR! writes, where N is
 ;          (receive (in out) (recur (cdr lis))	; the length of LIS.
 ;            (cond ((pred elt)
@@ -1125,9 +1125,9 @@
 ;;; minimal number of SET-CDR!s to splice these runs together into the result
 ;;; lists.
 
-(define (partition! pred lis)
+(define (srfi-1:partition! pred lis)
   (declare (function pred))
-  (if (null-list? lis) (values lis lis)
+  (if (srfi-1:null-list? lis) (values lis lis)
 
       ;; This pair of loops zips down contiguous in & out runs of the
       ;; list, splicing the runs together. The invariants are
@@ -1171,13 +1171,13 @@
 
 
 ;;; Inline us, please.
-(declaim (inline remove remove!))
-(define (remove  pred l)
+(declaim (inline srfi-1:remove srfi-1:remove!))
+(define (srfi-1:remove  pred l)
   (declare (function pred))
-  (filter  (lambda (x) (not (funcall pred x))) l))
-(define (remove! pred l)
+  (srfi-1:filter  (lambda (x) (not (funcall pred x))) l))
+(define (srfi-1:remove! pred l)
   (declare (function pred))
-  (filter! (lambda (x) (not (funcall pred x))) l))
+  (srfi-1:filter! (lambda (x) (not (funcall pred x))) l))
 
 
 ;;; Here's the taxonomy for the DELETE/ASSOC/MEMBER functions.
@@ -1197,18 +1197,18 @@
 ;;; assoc key lis [=]		Search alist by key comparison
 ;;; alist-delete key alist [=]	Alist-delete by key comparison
 
-(define (delete x lis &optional (= #'equal?))
+(define (srfi-1:delete x lis &optional (= #'equal?))
   (declare (function =))
-  (filter (lambda (y) (not (funcall = x y))) lis))
+  (srfi-1:filter (lambda (y) (not (funcall = x y))) lis))
 
-(define (delete! x lis &optional (= #'equal?))
+(define (srfi-1:delete! x lis &optional (= #'equal?))
   (declare (function =))
-  (filter! (lambda (y) (not (funcall = x y))) lis))
+  (srfi-1:filter! (lambda (y) (not (funcall = x y))) lis))
 
 ;;; Extended from R4RS to take an optional comparison argument.
-(define (member x lis &optional (= #'equal?))
+(define (srfi-1:member x lis &optional (= #'equal?))
   (declare (function =))
-  (find-tail (lambda (y) (funcall = x y)) lis))
+  (srfi-1:find-tail (lambda (y) (funcall = x y)) lis))
 
 ;;; R4RS, hence we don't bother to define.
 ;;; The MEMBER and then FIND-TAIL call should definitely
@@ -1226,22 +1226,22 @@
 ;;; linear-time algorithm to kill the dups. Or use an algorithm based on
 ;;; element-marking. The former gives you O(n lg n), the latter is linear.
 
-(define (delete-duplicates lis &optional (elt= #'equal?))
+(define (srfi-1:delete-duplicates lis &optional (elt= #'equal?))
   (declare (function elt=))
   (let recur ((lis lis))
-     (if (null-list? lis) lis
+     (if (srfi-1:null-list? lis) lis
          (let* ((x (car lis))
                 (tail (cdr lis))
-                (new-tail (recur (delete x tail elt=))))
+                (new-tail (recur (srfi-1:delete x tail elt=))))
            (if (eq? tail new-tail) lis (cons x new-tail))))))
 
-(define (delete-duplicates! lis &optional (elt= #'equal?))
+(define (srfi-1:delete-duplicates! lis &optional (elt= #'equal?))
   (declare (function elt=))
   (let recur ((lis lis))
-    (if (null-list? lis) lis
+    (if (srfi-1:null-list? lis) lis
         (let* ((x (car lis))
                (tail (cdr lis))
-               (new-tail (recur (delete! x tail elt=))))
+               (new-tail (recur (srfi-1:delete! x tail elt=))))
           (if (eq? tail new-tail) lis (cons x new-tail))))))
 
 
@@ -1249,60 +1249,60 @@
 ;;;;;;;;;;;;;;;
 
 ;;; Extended from R4RS to take an optional comparison argument.
-(define (assoc x lis &optional (= #'equal?))
+(define (srfi-1:assoc x lis &optional (= #'equal?))
   (declare (function =))
   (find (lambda (entry) (funcall = x (car entry))) lis))
 
-(define (alist-cons key datum alist) (cons (cons key datum) alist))
+(define (srfi-1:alist-cons key datum alist) (cons (cons key datum) alist))
 
-(define (alist-copy alist)
+(define (srfi-1:alist-copy alist)
   (map (lambda (elt) (cons (car elt) (cdr elt)))
        alist))
 
-(define (alist-delete key alist &optional (elt= #'equal?))
+(define (srfi-1:alist-delete key alist &optional (elt= #'equal?))
   (declare (function elt=))
-  (filter (lambda (elt) (not (funcall elt= key (car elt)))) alist))
+  (srfi-1:filter (lambda (elt) (not (funcall elt= key (car elt)))) alist))
 
-(define (alist-delete! key alist &optional (elt= #'equal?))
+(define (srfi-1:alist-delete! key alist &optional (elt= #'equal?))
   (declare (function elt=))
-  (filter! (lambda (elt) (not (funcall elt= key (car elt)))) alist))
+  (srfi-1:filter! (lambda (elt) (not (funcall elt= key (car elt)))) alist))
 
 
 ;;; find find-tail take-while drop-while span break any every list-index
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (find pred list)
-  (let ((=> (find-tail pred list)))
+(define (srfi-1:find pred list)
+  (let ((=> (srfi-1:find-tail pred list)))
     (cond (=> (car =>))
           (:else nil))))
 
-(define (find-tail pred list)
+(define (srfi-1:find-tail pred list)
   (declare (function pred))
   (let lp ((list list))
-    (and (not (null-list? list))
+    (and (not (srfi-1:null-list? list))
 	 (if (funcall pred (car list)) list
 	     (lp (cdr list))))))
 
-(define (take-while pred lis)
+(define (srfi-1:take-while pred lis)
   (declare (function pred))
   (let recur ((lis lis))
-    (if (null-list? lis) '()
+    (if (srfi-1:null-list? lis) '()
 	(let ((x (car lis)))
 	  (if (funcall pred x)
 	      (cons x (recur (cdr lis)))
 	      '())))))
 
-(define (drop-while pred lis)
+(define (srfi-1:drop-while pred lis)
   (declare (function pred))
   (let lp ((lis lis))
-    (if (null-list? lis) '()
+    (if (srfi-1:null-list? lis) '()
 	(if (funcall pred (car lis))
 	    (lp (cdr lis))
 	    lis))))
 
-(define (take-while! pred lis)
+(define (srfi-1:take-while! pred lis)
   (declare (function pred))
-  (if (or (null-list? lis) (not (funcall pred (car lis)))) '()
+  (if (or (srfi-1:null-list? lis) (not (funcall pred (car lis)))) '()
       (begin (let lp ((prev lis) (rest (cdr lis)))
 	       (if (pair? rest)
 		   (let ((x (car rest)))
@@ -1310,21 +1310,21 @@
 			 (set-cdr! prev '())))))
 	     lis)))
 
-(define (span pred lis)
+(define (srfi-1:span pred lis)
   (declare (function pred))
   (let recur ((lis lis))
-    (if (null-list? lis) (values '() '())
+    (if (srfi-1:null-list? lis) (values '() '())
 	(let ((x (car lis)))
 	  (if (funcall pred x)
 	      (receive (prefix suffix) (recur (cdr lis))
 		(values (cons x prefix) suffix))
 	      (values '() lis))))))
 
-(define (span! pred lis)
+(define (srfi-1:span! pred lis)
   (declare (function pred))
-  (if (or (null-list? lis) (not (funcall pred (car lis)))) (values '() lis)
+  (if (or (srfi-1:null-list? lis) (not (funcall pred (car lis)))) (values '() lis)
       (let ((suffix (let lp ((prev lis) (rest (cdr lis)))
-		      (if (null-list? rest) rest
+		      (if (srfi-1:null-list? rest) rest
 			  (let ((x (car rest)))
 			    (if (funcall pred x) (lp rest (cdr rest))
 				(begin (set-cdr! prev '())
@@ -1332,14 +1332,14 @@
 	(values lis suffix))))
 
 
-(define (break  pred lis)
+(define (srfi-1:break  pred lis)
   (declare (function pred))
-  (span  (lambda (x) (not (funcall pred x))) lis))
-(define (break! pred lis)
+  (srfi-1:span  (lambda (x) (not (funcall pred x))) lis))
+(define (srfi-1:break! pred lis)
   (declare (function pred))
-  (span! (lambda (x) (not (funcall pred x))) lis))
+  (srfi-1:span! (lambda (x) (not (funcall pred x))) lis))
 
-(define (any pred lis1 &rest lists)
+(define (srfi-1:any pred lis1 &rest lists)
   (declare (function pred))
   (if (pair? lists)
 
@@ -1353,9 +1353,9 @@
 		     (apply pred heads)))))) ; Last PRED app is tail call.
 
       ;; Fast path
-      (and (not (null-list? lis1))
+      (and (not (srfi-1:null-list? lis1))
 	   (let lp ((head (car lis1)) (tail (cdr lis1)))
-	     (if (null-list? tail)
+	     (if (srfi-1:null-list? tail)
 		 (funcall pred head)		; Last PRED app is tail call.
 		 (or (funcall pred head) (lp (car tail) (cdr tail))))))))
 
@@ -1366,7 +1366,7 @@
 ;        (and (pred (car list))
 ;             (lp (cdr list))))))
 
-(define (every pred lis1 &rest lists)
+(define (srfi-1:every pred lis1 &rest lists)
   (declare (function pred))
   (if (pair? lists)
 
@@ -1380,13 +1380,13 @@
 		    (apply pred heads)))))) ; Last PRED app is tail call.
 
       ;; Fast path
-      (or (null-list? lis1)
+      (or (srfi-1:null-list? lis1)
 	  (let lp ((head (car lis1))  (tail (cdr lis1)))
-	    (if (null-list? tail)
+	    (if (srfi-1:null-list? tail)
 		(funcall pred head)	; Last PRED app is tail call.
 		(and (funcall pred head) (lp (car tail) (cdr tail))))))))
 
-(define (list-index pred lis1 &rest lists)
+(define (srfi-1:list-index pred lis1 &rest lists)
   (declare (function pred))
   (if (pair? lists)
 
@@ -1399,7 +1399,7 @@
 
       ;; Fast path
       (let lp ((lis lis1) (n 0))
-	(and (not (null-list? lis))
+	(and (not (srfi-1:null-list? lis))
 	     (if (funcall pred (car lis)) n (lp (cdr lis) (f+ n 1)))))))
 
 ;;; Reverse
@@ -1411,9 +1411,9 @@
 ;(define (reverse! lis)
 ;  (pair-fold (lambda (pair tail) (set-cdr! pair tail) pair) '() lis))
 
-(define (reverse! lis)
+(define (srfi-1:reverse! lis)
   (let lp ((lis lis) (ans '()))
-    (if (null-list? lis) ans
+    (if (srfi-1:null-list? lis) ans
         (let ((tail (cdr lis)))
           (set-cdr! lis ans)
           (lp tail lis)))))
@@ -1431,9 +1431,9 @@
 ;;;   FILTER in this source code share longest common tails between args
 ;;;   and results to get structure sharing in the lset procedures.
 
-(define (%lset2<= = lis1 lis2) (every (lambda (x) (member x lis2 =)) lis1))
+(define (%lset2<= = lis1 lis2) (every (lambda (x) (srfi-1:member x lis2 =)) lis1))
 
-(define (lset<= = &rest lists)
+(define (srfi-1:lset<= = &rest lists)
   (declare (function =))
   (or (not (pair? lists)) ; 0-ary case
       (let lp ((s1 (car lists)) (rest (cdr lists)))
@@ -1443,7 +1443,7 @@
 		       (%lset2<= = s1 s2)) ; Real test
 		   (lp s2 rest)))))))
 
-(define (lset= = &rest lists)
+(define (srfi-1:lset= = &rest lists)
   (declare (function =))
   (or (not (pair? lists)) ; 0-ary case
       (let lp ((s1 (car lists)) (rest (cdr lists)))
@@ -1455,81 +1455,81 @@
 		   (lp s2 rest)))))))
 
 
-(define (lset-adjoin = lis &rest elts)
+(define (srfi-1:lset-adjoin = lis &rest elts)
   (declare (function =))
-  (fold (lambda (elt ans) (if (member elt ans =) ans (cons elt ans)))
-	lis elts))
+  (srfi-1:fold (lambda (elt ans) (if (member elt ans =) ans (cons elt ans)))
+               lis elts))
 
 
-(define (lset-union = &rest lists)
+(define (srfi-1:lset-union = &rest lists)
   (declare (function =))
   (reduce (lambda (lis ans)		; Compute ANS + LIS.
 	    (cond ((null? lis) ans)	; Don't copy any lists
 		  ((null? ans) lis) 	; if we don't have to.
 		  ((eq? lis ans) ans)
 		  (:else
-		   (fold (lambda (elt ans) (if (any (lambda (x) (funcall = x elt)) ans)
-					       ans
-					       (cons elt ans)))
-			 ans lis))))
+		   (srfi-1:fold (lambda (elt ans) (if (srfi-1:any (lambda (x) (funcall = x elt)) ans)
+                                                  ans
+                                                  (cons elt ans)))
+                                ans lis))))
 	  '() lists))
 
-(define (lset-union! = &rest lists)
+(define (srfi-1:lset-union! = &rest lists)
   (declare (function =))
   (reduce (lambda (lis ans)		; Splice new elts of LIS onto the front of ANS.
 	    (cond ((null? lis) ans)	; Don't copy any lists
 		  ((null? ans) lis) 	; if we don't have to.
 		  ((eq? lis ans) ans)
 		  (:else
-		   (pair-fold (lambda (pair ans)
-				(let ((elt (car pair)))
-				  (if (any (lambda (x) (funcall = x elt)) ans)
-				      ans
-				      (begin (set-cdr! pair ans) pair))))
-			      ans lis))))
+		   (srfi-1:pair-fold (lambda (pair ans)
+                                       (let ((elt (car pair)))
+                                         (if (srfi-1:any (lambda (x) (funcall = x elt)) ans)
+                                             ans
+                                             (begin (set-cdr! pair ans) pair))))
+                                     ans lis))))
 	  '() lists))
 
 
-(define (lset-intersection = lis1 &rest lists)
+(define (srfi-1:lset-intersection = lis1 &rest lists)
   (declare (function =))
-  (let ((lists (delete lis1 lists #'eq?))) ; Throw out any LIS1 vals.
-    (cond ((any #'null-list? lists) '())		; Short cut
+  (let ((lists (srfi-1:delete lis1 lists #'eq?))) ; Throw out any LIS1 vals.
+    (cond ((srfi-1:any #'null-list? lists) '())		; Short cut
 	  ((null? lists)          lis1)		; Short cut
-	  (:else (filter (lambda (x)
+	  (:else (srfi-1:filter (lambda (x)
 			  (every (lambda (lis) (member x lis =)) lists))
                          lis1)))))
 
-(define (lset-intersection! = lis1 &rest lists)
+(define (srfi-1:lset-intersection! = lis1 &rest lists)
   (declare (function =))
-  (let ((lists (delete lis1 lists #'eq?))) ; Throw out any LIS1 vals.
-    (cond ((any #'null-list? lists) '())		; Short cut
+  (let ((lists (srfi-1:delete lis1 lists #'eq?))) ; Throw out any LIS1 vals.
+    (cond ((srfi-1:any #'null-list? lists) '())		; Short cut
 	  ((null? lists)          lis1)		; Short cut
-	  (:else (filter! (lambda (x)
+	  (:else (srfi-1:filter! (lambda (x)
                             (every (lambda (lis) (member x lis =)) lists))
                           lis1)))))
 
-(define (lset-difference = lis1 &rest lists)
+(define (srfi-1:lset-difference = lis1 &rest lists)
   (declare (function =))
-  (let ((lists (filter #'pair? lists)))	; Throw out empty lists.
+  (let ((lists (srfi-1:filter #'pair? lists)))	; Throw out empty lists.
     (cond ((null? lists)     lis1)	; Short cut
 	  ((memq lis1 lists) '())	; Short cut
-	  (:else (filter (lambda (x)
-			  (every (lambda (lis) (not (member x lis =)))
-				 lists))
-			lis1)))))
+	  (:else (srfi-1:filter (lambda (x)
+                                  (every (lambda (lis) (not (member x lis =)))
+                                         lists))
+                         lis1)))))
 
-(define (lset-difference! = lis1 &rest lists)
+(define (srfi-1:lset-difference! = lis1 &rest lists)
   (declare (function =))
-  (let ((lists (filter #'pair? lists)))	; Throw out empty lists.
+  (let ((lists (srfi-1:filter #'pair? lists)))	; Throw out empty lists.
     (cond ((null? lists)     lis1)	; Short cut
 	  ((memq lis1 lists) '())	; Short cut
-	  (:else (filter! (lambda (x)
-                            (every (lambda (lis) (not (member x lis =)))
-                                   lists))
-                          lis1)))))
+	  (:else (srfi-1:filter! (lambda (x)
+                                   (every (lambda (lis) (not (member x lis =)))
+                                          lists))
+                                 lis1)))))
 
 
-(define (lset-xor = &rest lists)
+(define (srfi-1:lset-xor = &rest lists)
   (declare (function =))
   (reduce (lambda (b a)			; Compute A xor B:
 	    ;; Note that this code relies on the constant-time
@@ -1541,17 +1541,17 @@
 
 	    ;; Compute a-b and a^b, then compute b-(a^b) and
 	    ;; cons it onto the front of a-b.
-	    (receive (a-b a-int-b)   (lset-diff+intersection = a b)
-	      (cond ((null? a-b)     (lset-difference = b a))
+	    (receive (a-b a-int-b)   (srfi-1:lset-diff+intersection = a b)
+	      (cond ((null? a-b)     (srfi-1:lset-difference = b a))
 		    ((null? a-int-b) (append b a))
-		    (:else (fold (lambda (xb ans)
-                                   (if (member xb a-int-b =) ans (cons xb ans)))
-                                 a-b
-                                 b)))))
+		    (:else (srfi-1:fold (lambda (xb ans)
+                                          (if (member xb a-int-b =) ans (cons xb ans)))
+                                        a-b
+                                        b)))))
 	  '() lists))
 
 
-(define (lset-xor! = &rest lists)
+(define (srfi-1:lset-xor! = &rest lists)
   (declare (function =))
   (reduce (lambda (b a)			; Compute A xor B:
 	    ;; Note that this code relies on the constant-time
@@ -1563,32 +1563,32 @@
 
 	    ;; Compute a-b and a^b, then compute b-(a^b) and
 	    ;; cons it onto the front of a-b.
-	    (receive (a-b a-int-b)   (lset-diff+intersection! = a b)
-	      (cond ((null? a-b)     (lset-difference! = b a))
-		    ((null? a-int-b) (append! b a))
-		    (:else (pair-fold (lambda (b-pair ans)
-                                        (if (member (car b-pair) a-int-b =) ans
-                                            (begin (set-cdr! b-pair ans) b-pair)))
-                                      a-b
-                                      b)))))
+	    (receive (a-b a-int-b)   (srfi-1:lset-diff+intersection! = a b)
+	      (cond ((null? a-b)     (srfi-1:lset-difference! = b a))
+		    ((null? a-int-b) (srfi-1:append! b a))
+		    (:else (srfi-1:pair-fold (lambda (b-pair ans)
+                                               (if (member (car b-pair) a-int-b =) ans
+                                                   (begin (set-cdr! b-pair ans) b-pair)))
+                                             a-b
+                                             b)))))
 	  '() lists))
 
 
-(define (lset-diff+intersection = lis1 &rest lists)
+(define (srfi-1:lset-diff+intersection = lis1 &rest lists)
   (declare (function =))
   (cond ((every #'null-list? lists) (values lis1 '()))	; Short cut
 	((memq lis1 lists)        (values '() lis1))	; Short cut
-	(:else (partition (lambda (elt)
-			   (not (any (lambda (lis) (member elt lis =))
-				     lists)))
-			 lis1))))
+	(:else (srfi-1:partition (lambda (elt)
+                                   (not (srfi-1:any (lambda (lis) (member elt lis =))
+                                                    lists)))
+                                 lis1))))
 
 
-(define (lset-diff+intersection! = lis1 &rest lists)
+(define (srfi-1:lset-diff+intersection! = lis1 &rest lists)
   (declare (function =))
   (cond ((every #'null-list? lists) (values lis1 '()))	; Short cut
 	((member lis1 lists)        (values '() lis1))	; Short cut
-	(:else (partition! (lambda (elt)
-                             (not (any (lambda (lis) (member elt lis =))
-                                       lists)))
-                           lis1))))
+	(:else (srfi-1:partition! (lambda (elt)
+                                    (not (srfi-1:any (lambda (lis) (member elt lis =))
+                                                     lists)))
+                                  lis1))))

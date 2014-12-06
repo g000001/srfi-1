@@ -56,5 +56,33 @@
     (list (destructuring-bind (name &rest args)
                               name&args
             `(defun ,name (,@args)
+               (declare (optimize (speed 3) (debug 1) (space 3)))
                ,@body)))
     (symbol `(setf (symbol-function ',name&args) (progn ,@body)))))
+
+(defun f- (x y)
+  (- x y))
+
+(defun f+ (x y)
+  (+ x y))
+
+#-sbcl
+(define-compiler-macro f- (x y)
+  `(the fixnum (- (the fixnum ,x) (the fixnum ,y))))
+
+#+sbcl
+(define-compiler-macro f- (x y)
+  `(sb-ext:truly-the fixnum
+                     (- (sb-ext:truly-the fixnum ,x)
+                        (sb-ext:truly-the fixnum ,y))))
+
+
+#-sbcl
+(define-compiler-macro f+ (x y)
+  `(the fixnum (+ (the fixnum ,x) (the fixnum ,y))))
+
+#+sbcl
+(define-compiler-macro f+ (x y)
+  `(sb-ext:truly-the fixnum
+                     (+ (sb-ext:truly-the fixnum ,x)
+                        (sb-ext:truly-the fixnum ,y))))
