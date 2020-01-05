@@ -10,7 +10,7 @@
   :version "20200106"
   :license "MIT"  
   :serial t
-  :depends-on (:fiveam)
+  :depends-on ()
   :components ((:file "package")
                (:file "utils")
                (:file "srfi-1")))
