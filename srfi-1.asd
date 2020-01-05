@@ -8,6 +8,7 @@
   :author "Olin Shivers"
   :maintainer "CHIBA Masaomi <chiba.masaomi@gmail.com>"
   :version "20200106"
+  :license "MIT"  
   :serial t
   :depends-on (:fiveam)
   :components ((:file "package")
