@@ -1,3 +1,0 @@
-* srfi-1をCommon Lispで
-
-

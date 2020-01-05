@@ -1,4 +1,4 @@
-(in-package :srfi-1-internal)
+(cl:in-package "https://github.com/g000001/srfi-1#internals")
 
 (defmacro defun-inline (name (&rest args) &body body)
   `(progn
@@ -56,9 +56,10 @@
     (list (destructuring-bind (name &rest args)
                               name&args
             `(defun ,name (,@args)
-               (declare (optimize (speed 3) (debug 1) (space 3)))
                ,@body)))
-    (symbol `(setf (symbol-function ',name&args) (progn ,@body)))))
+    (symbol `(progn
+               (declaim (ftype function ,name&args))
+               (setf (symbol-function ',name&args) (progn ,@body))))))
 
 (defun f- (x y)
   (- x y))
