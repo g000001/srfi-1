@@ -25,7 +25,7 @@
 
 
 (defpackage "https://github.com/g000001/srfi-1#internals"
-  (:use cl)
+  (:use "https://github.com/g000001/srfi-1" cl)
   (:shadow let map loop)
   (:shadowing-import-from "https://github.com/g000001/srfi-1"
                           assoc
