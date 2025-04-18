@@ -26,31 +26,32 @@
 
 (defpackage "https://github.com/g000001/srfi-1#internals"
   (:use "https://github.com/g000001/srfi-1" cl)
-  (:shadow let map loop)
-  (:shadowing-import-from "https://github.com/g000001/srfi-1"
-                          assoc
-                          break
-                          concatenate
-                          count
-                          delete
-                          delete-duplicates
-                          eighth
-                          every
-                          fifth
-                          find
-                          first
-                          fourth
-                          last
-                          make-list
-                          member
-                          ninth
-                          reduce
-                          remove
-                          second
-                          seventh
-                          sixth
-                          tenth
-                          third))
+  (:shadow map let loop)
+  (:shadowing-import-from
+   "https://github.com/g000001/srfi-1"
+   assoc
+   break
+   concatenate
+   count
+   delete
+   delete-duplicates
+   eighth
+   every
+   fifth
+   find
+   first
+   fourth
+   last
+   make-list
+   member
+   ninth
+   reduce
+   remove
+   second
+   seventh
+   sixth
+   tenth
+   third))
 
 
 ;; *EOF*
